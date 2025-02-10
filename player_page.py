@@ -112,7 +112,7 @@ if row["word3"]:
 if player_id == "master":
     st.markdown(
         """
-        <a href="/?player=master&page=final_result" target="_self">
+        <a href="/final_result?player=master" target="_self">
             <button style="
                 font-size:20px;
                 padding:10px 20px;
