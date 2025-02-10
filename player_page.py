@@ -41,17 +41,16 @@ if player_id not in ["one", "stella", "riley", "master"]:
     st.error("올바른 player 값이 아닙니다. (one, stella, riley, master 중 하나)")
     st.stop()
 
-# DB에서 해당 player의 레코드가 있는지 확인 (없으면 새로 생성)
+# 이미 존재할 수 있는 레코드를 고려하여 INSERT OR IGNORE 사용
+c.execute(
+    "INSERT OR IGNORE INTO players (player_id, name, target, word1, word2, word3, count1, count2, count3) VALUES (?, '', '', '', '', '', 0, 0, 0)",
+    (player_id,)
+)
+conn.commit()
+
+# 현재 플레이어 레코드 읽어오기
 c.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
 row = c.fetchone()
-if row is None:
-    c.execute(
-        "INSERT INTO players (player_id, name, target, word1, word2, word3, count1, count2, count3) VALUES (?, '', '', '', '', '', 0, 0, 0)",
-        (player_id,),
-    )
-    conn.commit()
-    c.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
-    row = c.fetchone()
 
 st.title(f"{player_id} 전용 페이지")
 st.write("다른 플레이어의 정보는 보이지 않습니다. 본인의 정보를 입력하세요.")
