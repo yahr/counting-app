@@ -1,6 +1,28 @@
 import streamlit as st
 import sqlite3
 
+# 버튼 스타일을 변경하기 위한 CSS 코드
+st.markdown("""
+    <style>
+    /* 모든 st.button에 적용됨 */
+    div.stButton > button {
+        font-size: 24px;      /* 폰트 크기 */
+        padding: 12px 24px;   /* 위아래 12px, 좌우 24px의 패딩 */
+        height: 3em;          /* 버튼 높이 */
+        width: auto;          /* 버튼 너비 (필요에 따라 고정값도 지정 가능) */
+        background-color: #4CAF50; /* 예시로 초록색 배경 */
+        color: white;         /* 글자 색상 */
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    /* 버튼 위에 마우스를 올렸을 때 효과 */
+    div.stButton > button:hover {
+        background-color: #45a049;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # 데이터베이스 연결 함수 (멀티스레드 환경에서도 사용)
 def get_connection():
     conn = sqlite3.connect('game.db', check_same_thread=False)
@@ -53,7 +75,7 @@ st.write("다른 플레이어의 정보는 보이지 않습니다. 본인의 정
 
 # ── 1) 정보 입력 폼 ──
 with st.form("player_form"):
-    name = st.text_input("내 이름", value=row["name"])
+    name = st.text_input("이름", value=row["name"])
     target = st.text_input("선택한 사람", value=row["target"])
     word1 = st.text_input("단어 1", value=row["word1"])
     word2 = st.text_input("단어 2", value=row["word2"])
@@ -67,7 +89,7 @@ with st.form("player_form"):
         """, (name, target, word1, word2, word3, player_id))
         conn.commit()
         st.success("정보가 저장되었습니다.")
-        st.rerun()  # st.experimental_rerun() 대신 st.rerun() 사용
+        st.rerun()  # st.experimental_rerun() 대신 사용
 
 # ── 2) 단어 카운트 ──
 # 최신 DB 데이터를 다시 읽어옴
