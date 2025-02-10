@@ -83,36 +83,67 @@ row = c.fetchone()
 
 st.write("### 단어 카운트")
 col1, col2, col3 = st.columns(3)
+
+# 단어1 카운트 영역
 if row["word1"]:
     with col1:
-        if st.button(f"{row['word1']} +", key=f"{player_id}_btn1"):
-            new_count = row["count1"] + 1
-            c.execute("UPDATE players SET count1 = ? WHERE player_id = ?", (new_count, player_id))
-            conn.commit()
-            st.rerun()
+        # plus, minus 버튼을 나란히 배치하기 위해 내부에 서브컬럼 사용
+        sub_cols = st.columns([1, 1])
+        with sub_cols[0]:
+            if st.button(f"{row['word1']} +", key=f"{player_id}_btn1_plus"):
+                new_count = row["count1"] + 1
+                c.execute("UPDATE players SET count1 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
+        with sub_cols[1]:
+            if st.button(f"{row['word1']} –", key=f"{player_id}_btn1_minus"):
+                new_count = row["count1"] - 1
+                c.execute("UPDATE players SET count1 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
         st.write("카운트:", row["count1"])
+
+# 단어2 카운트 영역
 if row["word2"]:
     with col2:
-        if st.button(f"{row['word2']} +", key=f"{player_id}_btn2"):
-            new_count = row["count2"] + 1
-            c.execute("UPDATE players SET count2 = ? WHERE player_id = ?", (new_count, player_id))
-            conn.commit()
-            st.rerun()
+        sub_cols = st.columns([1, 1])
+        with sub_cols[0]:
+            if st.button(f"{row['word2']} +", key=f"{player_id}_btn2_plus"):
+                new_count = row["count2"] + 1
+                c.execute("UPDATE players SET count2 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
+        with sub_cols[1]:
+            if st.button(f"{row['word2']} –", key=f"{player_id}_btn2_minus"):
+                new_count = row["count2"] - 1
+                c.execute("UPDATE players SET count2 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
         st.write("카운트:", row["count2"])
+
+# 단어3 카운트 영역
 if row["word3"]:
     with col3:
-        if st.button(f"{row['word3']} +", key=f"{player_id}_btn3"):
-            new_count = row["count3"] + 1
-            c.execute("UPDATE players SET count3 = ? WHERE player_id = ?", (new_count, player_id))
-            conn.commit()
-            st.rerun()
+        sub_cols = st.columns([1, 1])
+        with sub_cols[0]:
+            if st.button(f"{row['word3']} +", key=f"{player_id}_btn3_plus"):
+                new_count = row["count3"] + 1
+                c.execute("UPDATE players SET count3 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
+        with sub_cols[1]:
+            if st.button(f"{row['word3']} –", key=f"{player_id}_btn3_minus"):
+                new_count = row["count3"] - 1
+                c.execute("UPDATE players SET count3 = ? WHERE player_id = ?", (new_count, player_id))
+                conn.commit()
+                st.rerun()
         st.write("카운트:", row["count3"])
 
 # ── 마스터 전용: 최종 결과 페이지 링크 ──
 if player_id == "master":
     st.markdown(
         """
-        <a href="/final_result?player=master" target="_self">
+        <a href="/?player=master&page=final_result" target="_self">
             <button style="
                 font-size:20px;
                 padding:10px 20px;
