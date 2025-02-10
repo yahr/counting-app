@@ -1,61 +1,44 @@
 import streamlit as st
 import sqlite3
 
-# 버튼 스타일을 변경하기 위한 CSS 코드
-st.markdown("""
-    <style>
-    /* 모든 st.button에 적용됨 */
-    div.stButton > button {
-        font-size: 24px;      /* 폰트 크기 */
-        padding: 12px 24px;   /* 위아래 12px, 좌우 24px의 패딩 */
-        height: 3em;          /* 버튼 높이 */
-        width: auto;          /* 버튼 너비 (필요에 따라 고정값도 지정 가능) */
-        background-color: #4CAF50; /* 예시로 초록색 배경 */
-        color: white;         /* 글자 색상 */
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-    /* 버튼 위에 마우스를 올렸을 때 효과 */
-    div.stButton > button:hover {
-        background-color: #45a049;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# 데이터베이스 연결 함수 (멀티스레드 환경에서도 사용)
+# 데이터베이스 연결 함수
 def get_connection():
-    conn = sqlite3.connect('game.db', check_same_thread=False)
+    conn = sqlite3.connect("game.db", check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 # DB 연결 및 테이블 생성 (없으면 생성)
 conn = get_connection()
 c = conn.cursor()
-c.execute('''
-CREATE TABLE IF NOT EXISTS players (
-    player_id TEXT PRIMARY KEY,
-    name TEXT,
-    target TEXT,
-    word1 TEXT,
-    word2 TEXT,
-    word3 TEXT,
-    count1 INTEGER,
-    count2 INTEGER,
-    count3 INTEGER
+c.execute(
+    """
+    CREATE TABLE IF NOT EXISTS players (
+        player_id TEXT PRIMARY KEY,
+        name TEXT,
+        target TEXT,
+        word1 TEXT,
+        word2 TEXT,
+        word3 TEXT,
+        count1 INTEGER,
+        count2 INTEGER,
+        count3 INTEGER
+    )
+    """
 )
-''')
 conn.commit()
 
 # URL 쿼리 파라미터에서 player 값을 읽음 (st.query_params 사용)
 query_params = st.query_params
-if 'player' not in query_params:
+if "player" not in query_params:
     st.error("URL에 쿼리 파라미터로 player를 지정해주세요. 예: ?player=one")
     st.stop()
-# player_id를 바로 할당 (st.query_params는 문자열을 반환)
-player_id = query_params['player']
-if player_id not in ['one', 'stella', 'riley']:
-    st.error("올바른 player 값이 아닙니다. (one, stella, riley 중 하나)")
+
+# st.query_params는 문자열을 반환합니다.
+player_id = query_params["player"]
+
+# 허용된 플레이어: one, stella, riley, master
+if player_id not in ["one", "stella", "riley", "master"]:
+    st.error("올바른 player 값이 아닙니다. (one, stella, riley, master 중 하나)")
     st.stop()
 
 # DB에서 해당 player의 레코드가 있는지 확인 (없으면 새로 생성)
@@ -64,7 +47,7 @@ row = c.fetchone()
 if row is None:
     c.execute(
         "INSERT INTO players (player_id, name, target, word1, word2, word3, count1, count2, count3) VALUES (?, '', '', '', '', '', 0, 0, 0)",
-        (player_id,)
+        (player_id,),
     )
     conn.commit()
     c.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
@@ -82,14 +65,17 @@ with st.form("player_form"):
     word3 = st.text_input("단어 3", value=row["word3"])
     submitted = st.form_submit_button("저장")
     if submitted:
-        c.execute("""
+        c.execute(
+            """
             UPDATE players
             SET name = ?, target = ?, word1 = ?, word2 = ?, word3 = ?
             WHERE player_id = ?
-        """, (name, target, word1, word2, word3, player_id))
+            """,
+            (name, target, word1, word2, word3, player_id),
+        )
         conn.commit()
         st.success("정보가 저장되었습니다.")
-        st.rerun()  # st.experimental_rerun() 대신 사용
+        st.rerun()
 
 # ── 2) 단어 카운트 ──
 # 최신 DB 데이터를 다시 읽어옴
@@ -98,7 +84,6 @@ row = c.fetchone()
 
 st.write("### 단어 카운트")
 col1, col2, col3 = st.columns(3)
-
 if row["word1"]:
     with col1:
         if st.button(f"{row['word1']} +", key=f"{player_id}_btn1"):
@@ -123,3 +108,23 @@ if row["word3"]:
             conn.commit()
             st.rerun()
         st.write("카운트:", row["count3"])
+
+# ── 마스터 전용: 최종 결과 페이지 링크 ──
+if player_id == "master":
+    st.markdown(
+        """
+        <a href="/?player=master&page=final_result" target="_self">
+            <button style="
+                font-size:20px;
+                padding:10px 20px;
+                background-color:#008CBA;
+                color:white;
+                border:none;
+                border-radius:5px;
+                cursor:pointer;">
+                최종 결과 확인하기
+            </button>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
