@@ -53,7 +53,7 @@ st.write("다른 플레이어의 정보는 보이지 않습니다. 본인의 정
 
 # ── 1) 정보 입력 폼 ──
 with st.form("player_form"):
-    name = st.text_input("이름", value=row["name"])
+    name = st.text_input("내 이름", value=row["name"])
     target = st.text_input("선택한 사람", value=row["target"])
     word1 = st.text_input("단어 1", value=row["word1"])
     word2 = st.text_input("단어 2", value=row["word2"])
